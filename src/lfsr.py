@@ -6,7 +6,7 @@ x^32 + x^22 + x^2 + x^1 + 1
 
 This configuration produces a sequence with period 2^32 - 1.
 """
-
+import numpy as np
 
 class LFSR32:
     """
@@ -44,10 +44,28 @@ class LFSR32:
         Returns:
             Next state of the LFSR (32-bit unsigned integer).
         """
+
+        def _calculateTheNewState(state, Taps, MatrixSize = 32) -> int:
+            final_state = 0
+            T = np.zeros((MatrixSize, MatrixSize), dtype=int)
+            for i in range(1,MatrixSize): T[i,i-1] = 1
+            for j in range(len(Taps)): T[0, MatrixSize-1-Taps[j]] = 1
+            vector = np.zeros(MatrixSize, dtype=int)
+            for i in range(MatrixSize): vector[MatrixSize-1-i] = (state >>i)&1
+            newVector = (np.dot(T,vector))%2
+            for i in range(MatrixSize): final_state += newVector[i]*(2**(MatrixSize-1-i))
+
+            return int(final_state) & 0xFFFFFFFF
+
+        final_state = _calculateTheNewState(state, [31,21,1,0])
+        return final_state
+        
+
         # TODO: Implement LFSR step
         # Hint: XOR taps at positions 32, 22, 2, 1 (0-indexed: 31, 21, 1, 0)
         # Shift right and insert feedback bit at MSB
         raise NotImplementedError("Students must implement _lfsr32")
+    
     
     def _next(self) -> int:
         """
@@ -70,5 +88,12 @@ class LFSR32:
         Returns:
             A pseudo-random integer in the specified range.
         """
+
+        value = self._next()
+
+        range_size = max_val - min_val + 1
+
+        return min_val + (value % range_size)
+
         # TODO: Implement random integer generation using _next()
         raise NotImplementedError("Students must implement random_int")

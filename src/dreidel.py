@@ -33,5 +33,10 @@ class Dreidel:
         Returns:
             One of: "Nun", "Gimel", "Hey", "Shin"
         """
+
+        index = self._lfsr.random_int(0, len(self.FACES) - 1)
+
+        return self.FACES[index]
+
         # TODO: Implement spin using self._lfsr.random_int()
         raise NotImplementedError("Students must implement spin")
