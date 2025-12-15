@@ -6,7 +6,6 @@ x^32 + x^22 + x^2 + x^1 + 1
 
 This configuration produces a sequence with period 2^32 - 1.
 """
-import numpy as np
 
 class LFSR32:
     """
@@ -45,20 +44,18 @@ class LFSR32:
             Next state of the LFSR (32-bit unsigned integer).
         """
 
-        def _calculateTheNewState(state, Taps, MatrixSize = 32) -> int:
-            final_state = 0
-            T = np.zeros((MatrixSize, MatrixSize), dtype=int)
-            for i in range(1,MatrixSize): T[i,i-1] = 1
-            for j in range(len(Taps)): T[0, MatrixSize-1-Taps[j]] = 1
-            vector = np.zeros(MatrixSize, dtype=int)
-            for i in range(MatrixSize): vector[MatrixSize-1-i] = (state >>i)&1
-            newVector = (np.dot(T,vector))%2
-            for i in range(MatrixSize): final_state += newVector[i]*(2**(MatrixSize-1-i))
+        bit31 = (state >> 31) & 1
+        bit21 = (state >> 21) & 1
+        bit1 = (state >> 1) & 1
+        bit0 = state & 1
+                
+        feedback_bit = bit31 ^ bit21 ^ bit1 ^ bit0
 
-            return int(final_state) & 0xFFFFFFFF
+        next_state = state >> 1
 
-        final_state = _calculateTheNewState(state, [31,21,1,0])
-        return final_state
+        next_state = next_state | (feedback_bit << 31)
+                
+        return next_state & 0xFFFFFFFF
         
 
         # TODO: Implement LFSR step
