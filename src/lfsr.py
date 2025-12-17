@@ -44,6 +44,20 @@ class LFSR32:
         Returns:
             Next state of the LFSR (32-bit unsigned integer).
         """
+
+        bit31 = (state >> 31) & 1
+        bit21 = (state >> 21) & 1
+        bit1 = (state >> 1) & 1
+        bit0 = state & 1
+                        
+        feedback_bit = bit31 ^ bit21 ^ bit1 ^ bit0
+
+        next_state = state >> 1
+
+        next_state = next_state | (feedback_bit << 31)
+                        
+        return next_state & 0xFFFFFFFF
+
         # TODO: Implement LFSR step
         # Hint: XOR taps at positions 32, 22, 2, 1 (0-indexed: 31, 21, 1, 0)
         # Shift right and insert feedback bit at MSB
@@ -70,5 +84,12 @@ class LFSR32:
         Returns:
             A pseudo-random integer in the specified range.
         """
+
+        value = self._next()
+
+        range_size = max_val - min_val + 1
+
+        return min_val + (value % range_size)
+
         # TODO: Implement random integer generation using _next()
         raise NotImplementedError("Students must implement random_int")
